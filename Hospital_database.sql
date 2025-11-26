@@ -1,34 +1,52 @@
+DROP TABLE schedules;
+DROP TABLE bills;
+DROP TABLE appointments;
+DROP TABLE treatments;
+DROP TABLE prescriptions;
+DROP TABLE patient;
+DROP TABLE staff;
+DROP TABLE specialization;
+DROP TABLE occupation;
+
 CREATE TABLE specialization(
-	field_id	VARCHAR(10) PRIMARY KEY,
-    occupation	varchar(10)
+	specialization_id	VARCHAR(10) PRIMARY KEY,
+    specialization_name	VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE occupation(
+	occupation_id	VARCHAR(10) PRIMARY KEY,
+    occupation_name	VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE staff(
 	staff_id		INT PRIMARY KEY,
-	name			VARCHAR(30),
-    field_id		VARCHAR(10),
+	name			VARCHAR(30) NOT NULL,
+    specialization_id		VARCHAR(10),
+    occupation_id	VARCHAR(10) NOT NULL,
     office_no       VARCHAR(20),
-    Foreign Key (field_id) references specialization(field_id)
+    Foreign Key (specialization_id) references specialization(specialization_id),
+    Foreign Key (occupation_id) references occupation(occupation_id)
 );
 
 CREATE TABLE patient (
   patient_id    INT PRIMARY KEY,
   name          VARCHAR(30) NOT NULL,
-  age           INT,
-  gender        ENUM('M','F'),
-  weight		float(5, 2),
+  age           INT NOT NULL,
+  gender        ENUM('M','F') NOT NULL,
+  weight		float(5, 2) NOT NULL,
   phone_number  VARCHAR(20)
 );
 
 CREATE TABLE prescriptions (
   prescription_id INT PRIMARY KEY,
-  name            VARCHAR(30),
-  type            VARCHAR(20),
-  price           float(10, 2)
+  name            VARCHAR(30) NOT NULL,
+  type            ENUM('Tablet', 'Ointment', 'Patch', 'Capsule', 'Spray', 'Syrup', 'Drops', 'Injection', 'Powder'),
+  price           float(10, 2) DEFAULT 0
 );
 
 CREATE TABLE treatments(
-  prescription_id  INT PRIMARY KEY,
+  treatment_id	   INT PRIMARY KEY,
+  prescription_id  INT NOT NULL,
   staff_id         INT NOT NULL,
   patient_id       INT NOT NULL,
   date_received    DATETIME,
@@ -51,7 +69,7 @@ CREATE TABLE bills (
   prescription_id 	INT NOT NULL, 
   patient_id   		INT NOT NULL,
   total_amount 		DECIMAL(14,2) NOT NULL DEFAULT 0,
-  quantity			INT,
+  quantity			INT DEFAULT 1,
   FOREIGN KEY (prescription_id) REFERENCES prescriptions(prescription_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE ON UPDATE CASCADE,
   CHECK (total_amount >= 0)
@@ -65,3 +83,175 @@ CREATE TABLE schedules (
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+-- 1) specialization (10 rows)
+INSERT INTO specialization (specialization_id, specialization_name) VALUES
+('CARD', 'Cardio'),
+('DERM', 'Derm'),
+('ORTH', 'Ortho'),
+('NEUR', 'Neuro'),
+('PED',  'Pedia'),
+('ONCO', 'Oncolo'),
+('PSYC', 'Psych'),
+('ENT',  'ENT'),
+('OPTH', 'Opthal'),
+('GEN',  'General');
+
+-- 2) occupation (10 rows)
+INSERT INTO occupation (occupation_id, occupation_name) VALUES
+('DOC',   'Doctor'),
+('NUR',   'Nurse'),
+('ADMIN', 'Admin'),
+('PHARM', 'Pharmac'),
+('LAB',   'LabTech'),
+('RAD',   'Radiology'),
+('SURG',  'Surgeon'),
+('DENT',  'Dentist'),
+('THER',  'Therapist'),
+('EMT',   'EMT');
+
+-- 3) staff (10 rows)
+INSERT INTO staff (staff_id, name, specialization_id, occupation_id, office_no) VALUES
+(101, 'Alice Kim',    'CARD', 'DOC',   'A-101'),
+(102, 'Bob Lee',      'DERM', 'DOC',   'A-102'),
+(103, 'Carol Park', 'ORTH', 'NUR',   'B-201'),
+(104, 'David Choi', 'NEUR', 'NUR',   'B-202'),
+(105, 'Frank Han',         NULL,  'ADMIN', 'C-301'),
+(106, 'Emma Jung',         NULL,  'ADMIN', 'C-302'),
+(107, 'Grace Shin',        'GEN', 'RAD',   'D-401'),
+(108, 'Henry Yoo',         'GEN', 'LAB',   'D-402'),
+(109, 'Irene Kwon',        'GEN', 'THER',  'E-501'),
+(110, 'Jason Moon',        'GEN', 'EMT',   'E-502');
+
+-- 4) patient (10 rows)
+INSERT INTO patient (patient_id, name, age, gender, weight, phone_number) VALUES
+(201, 'John Doe',        34, 'M', 72.50, '010-1111-2222'),
+(202, 'Jane Smith',      29, 'F', 58.30, '010-2222-3333'),
+(203, 'Michael Brown',   45, 'M', 80.10, '010-3333-4444'),
+(204, 'Emily Davis',     52, 'F', 65.75, '010-4444-5555'),
+(205, 'Chris Johnson',   38, 'M', 77.20, '010-5555-6666'),
+(206, 'Anna Wilson',     26, 'F', 54.40, '010-6666-7777'),
+(207, 'Robert Taylor',   63, 'M', 82.90, '010-7777-8888'),
+(208, 'Sophia Martinez', 31, 'F', 59.80, '010-8888-9999'),
+(209, 'David Anderson',  47, 'M', 85.60, '010-9999-0000'),
+(210, 'Olivia Thomas',   41, 'F', 62.15, '010-1010-2020');
+
+-- 5) prescriptions (10 rows)
+INSERT INTO prescriptions (prescription_id, name, type, price) VALUES
+(301, 'Aspirin',        'Tablet',    5.50),
+(302, 'Amoxicillin',    'Capsule',  12.00),
+(303, 'Ibuprofen',      'Tablet',    7.25),
+(304, 'Metformin',      'Tablet',   15.75),
+(305, 'Loratadine',     'Tablet',    9.10),
+(306, 'Saline Spray',   'Spray',     4.80),
+(307, 'Cough Syrup',    'Syrup',    11.40),
+(308, 'Eye Drops',      'Drops',     6.95),
+(309, 'Insulin',        'Injection',35.00),
+(310, 'Vitamin D',      'Tablet',    8.60);
+
+-- 6) treatments (20 rows)
+INSERT INTO treatments (treatment_id, prescription_id, staff_id, patient_id, date_received) VALUES
+(0, 301, 101, 201, '2025-11-20 08:30:00'),
+(1, 302, 101, 202, '2025-11-20 09:00:00'),
+(2, 303, 103, 203, '2025-11-20 09:30:00'),
+(3, 301, 104, 204, '2025-11-20 10:00:00'),
+(4, 305, 105, 205, '2025-11-20 10:30:00'),
+(5, 306, 106, 205, '2025-11-20 11:00:00'),
+(6, 307, 107, 201, '2025-11-20 12:30:00'),
+(7, 308, 108, 208, '2025-11-20 13:00:00'),
+(8, 309, 109, 209, '2025-11-20 13:30:00'),
+(9, 310, 110, 202, '2025-11-20 14:00:00'),
+(10, 304, 101, 202, '2025-11-21 08:30:00'),
+(11, 302, 101, 202, '2025-11-22 08:30:00'),
+(12, 301, 101, 201, '2025-11-25 08:30:00'),
+(13, 305, 103, 203, '2025-11-20 14:30:00'),
+(14, 303, 103, 203, '2025-11-30 09:30:00'),
+(15, 306, 104, 204, '2025-12-01 10:30:00'),
+(16, 307, 107, 210, '2025-12-02 09:00:00'),
+(17, 308, 108, 208, '2025-12-02 09:30:00'),
+(18, 309, 109, 209, '2025-12-02 10:30:00'),
+(19, 310, 110, 210, '2025-12-02 11:00:00');
+
+-- 7) appointments (25 rows)
+INSERT INTO appointments (appointment_id, patient_id, staff_id, appointment_date) VALUES
+-- appointments happened (30 minutes before receiving each treatment)
+(0, 201, 101, '2025-11-20 08:00:00'), 
+(1, 202, 101, '2025-11-20 08:30:00'),
+(2, 203, 103, '2025-11-20 09:00:00'), 
+(3, 204, 104, '2025-11-20 09:30:00'), 
+(4, 205, 105, '2025-11-20 10:00:00'),
+(5, 205, 106, '2025-11-20 10:30:00'), 
+(6, 201, 107, '2025-11-20 12:00:00'),
+(7, 208, 108, '2025-11-20 12:30:00'), 
+(8, 209, 109, '2025-11-20 13:00:00'), 
+(9, 202, 110, '2025-11-20 13:30:00'), 
+(10, 202, 101, '2025-11-21 08:00:00'), 
+(11, 202, 101, '2025-11-22 08:00:00'), 
+(12, 201, 101, '2025-11-25 08:00:00'), 
+(13, 203, 103, '2025-11-20 14:00:00'), 
+(14, 203, 103, '2025-11-30 09:00:00'), 
+(15, 204, 104, '2025-12-01 10:00:00'), 
+(16, 210, 107, '2025-12-02 08:30:00'), 
+(17, 208, 108, '2025-12-02 09:00:00'), 
+(18, 209, 109, '2025-12-02 10:00:00'), 
+(19, 210, 110, '2025-12-02 10:30:00'), 
+-- appointments not happened yet
+(20, 201, 101, '2025-12-12 08:30:00'),
+(21, 202, 102, '2025-12-12 09:00:00'),
+(22, 205, 105, '2025-12-13 09:30:00'),
+(23, 210, 110, '2025-12-14 10:30:00'),
+(24, 208, 108, '2025-12-16 13:30:00');
+
+
+-- 8) bills (20 rows)
+INSERT INTO bills (bill_id, prescription_id, patient_id) VALUES
+(501, 301, 201),
+(502, 302, 202),
+(503, 303, 203),
+(504, 301, 204),
+(505, 305, 205),
+(506, 306, 205),
+(507, 307, 201),
+(508, 308, 208),
+(509, 309, 209),
+(510, 310, 202),
+(511, 304, 202),
+(512, 302, 202),
+(513, 301, 201),
+(514, 305, 203),
+(515, 303, 203),
+(516, 306, 204),
+(517, 307, 210),
+(518, 308, 208),
+(519, 309, 209),
+(520, 310, 210);
+
+
+-- 9) schedules (25 rows)
+INSERT INTO schedules (staff_id, appointment_id, date_scheduled) VALUES
+-- schedules happened (5-7 days before each appointments)
+(105, 0,  '2025-11-15 08:00:00'),
+(105, 1,  '2025-11-13 09:30:00'),
+(105, 2,  '2025-11-14 09:00:00'),
+(105, 3,  '2025-11-15 09:00:00'),
+(105, 4,  '2025-11-13 10:00:00'),
+(106, 5,  '2025-11-13 11:30:00'),
+(106, 6,  '2025-11-13 12:00:00'),
+(106, 7,  '2025-11-13 12:30:00'),
+(106, 8,  '2025-11-13 13:00:00'),
+(106, 9,  '2025-11-13 13:30:00'),
+(106, 10, '2025-11-14 08:00:00'),
+(106, 11, '2025-11-15 08:00:00'),
+(106, 12, '2025-11-18 08:00:00'),
+(106, 13, '2025-11-13 14:00:00'),
+(106, 14, '2025-11-23 09:00:00'),
+(106, 15, '2025-11-23 10:00:00'),
+(105, 16, '2025-11-24 08:30:00'),
+(105, 17, '2025-11-26 09:00:00'),
+(105, 18, '2025-11-25 13:00:00'),
+(105, 19, '2025-11-25 12:30:00'),
+(105, 20, '2025-12-05 16:30:00'),
+(105, 21, '2025-12-05 09:00:00'),
+(105, 22, '2025-12-07 17:30:00'),
+(105, 23, '2025-12-09 15:30:00'),
+(105, 24, '2025-12-09 13:30:00');

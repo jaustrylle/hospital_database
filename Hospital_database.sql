@@ -1,12 +1,12 @@
-DROP TABLE schedules;
-DROP TABLE bills;
-DROP TABLE appointments;
-DROP TABLE treatments;
-DROP TABLE prescriptions;
-DROP TABLE patient;
-DROP TABLE staff;
-DROP TABLE specialization;
-DROP TABLE occupation;
+DROP TABLE IF EXISTS schedules;
+DROP TABLE IF EXISTS bills;
+DROP TABLE IF EXISTS appointments;
+DROP TABLE IF EXISTS treatments;
+DROP TABLE IF EXISTS prescriptions;
+DROP TABLE IF EXISTS patient;
+DROP TABLE IF EXISTS staff;
+DROP TABLE IF EXISTS specialization;
+DROP TABLE IF EXISTS occupation;
 
 CREATE TABLE specialization(
 	specialization_id	VARCHAR(10) PRIMARY KEY,

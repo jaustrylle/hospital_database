@@ -1,0 +1,36 @@
+SELECT COUNT(*) AS total_patients
+FROM patient;
+
+SELECT
+    specialization_id,
+    COUNT(staff_id) AS number_of_doctors
+FROM
+    staff
+GROUP BY
+    specialization_id
+ORDER BY
+    number_of_doctors DESC;
+
+SELECT name FROM staff WHERE specialization_id = 'CARD';
+
+SELECT
+    p.name,
+    p.patient_id,
+    pr.prescription_id
+FROM
+    patient p
+INNER JOIN
+    bills pr ON p.patient_id = pr.patient_id
+WHERE
+    LOWER(pr.prescription_id) = 304;
+
+SELECT name FROM patient WHERE patient_id NOT IN (SELECT patient_id FROM appointments WHERE appointment_date > CURRENT_DATE);
+
+SELECT D.name AS DoctorName, COUNT(DISTINCT A.patient_id) AS NumberOfPatients
+FROM staff D
+LEFT JOIN appointments A ON D.staff_id = A.staff_id
+GROUP BY D.name;
+
+SELECT treatment_id, COUNT(*) AS treatment_count FROM treatments GROUP BY treatment_id ORDER BY treatment_count DESC;
+
+

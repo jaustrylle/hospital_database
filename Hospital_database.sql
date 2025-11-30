@@ -30,7 +30,7 @@ CREATE TABLE staff(
 
 CREATE TABLE patient (
   patient_id    INT PRIMARY KEY,
-  name          VARCHAR(30) NOT NULL,
+  patient_name          VARCHAR(30) NOT NULL,
   age           INT NOT NULL,
   gender        ENUM('M','F') NOT NULL,
   weight		float(5, 2) NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE patient (
 
 CREATE TABLE prescriptions (
   prescription_id INT PRIMARY KEY,
-  name            VARCHAR(30) NOT NULL,
+  prescription_name            VARCHAR(30) NOT NULL,
   type            ENUM('Tablet', 'Ointment', 'Patch', 'Capsule', 'Spray', 'Syrup', 'Drops', 'Injection', 'Powder'),
   price           float(10, 2) DEFAULT 0
 );
@@ -124,7 +124,7 @@ INSERT INTO staff (staff_id, name, specialization_id, occupation_id, office_no) 
 (110, 'Jason Moon',        'GEN', 'EMT',   'E-502');
 
 -- 4) patient (10 rows)
-INSERT INTO patient (patient_id, name, age, gender, weight, phone_number) VALUES
+INSERT INTO patient (patient_id, patient_name, age, gender, weight, phone_number) VALUES
 (201, 'John Doe',        34, 'M', 72.50, '010-1111-2222'),
 (202, 'Jane Smith',      29, 'F', 58.30, '010-2222-3333'),
 (203, 'Michael Brown',   45, 'M', 80.10, '010-3333-4444'),
@@ -137,7 +137,7 @@ INSERT INTO patient (patient_id, name, age, gender, weight, phone_number) VALUES
 (210, 'Olivia Thomas',   41, 'F', 62.15, '010-1010-2020');
 
 -- 5) prescriptions (10 rows)
-INSERT INTO prescriptions (prescription_id, name, type, price) VALUES
+INSERT INTO prescriptions (prescription_id, prescription_name, type, price) VALUES
 (301, 'Aspirin',        'Tablet',    5.50),
 (302, 'Amoxicillin',    'Capsule',  12.00),
 (303, 'Ibuprofen',      'Tablet',    7.25),

@@ -33,4 +33,42 @@ GROUP BY D.name;
 
 SELECT treatment_id, COUNT(*) AS treatment_count FROM treatments GROUP BY treatment_id ORDER BY treatment_count DESC;
 
+#Peyton Bubert
+# 1. Select all patients that are female and weight is higher than 125
+SELECT * FROM patient WHERE gender = 'F' AND weight > 60;
 
+# 2. Select all distinct staff that have had an appointment with Jane Smith
+SELECT DISTINCT name from staff
+INNER JOIN appointments ON appointments.staff_id = staff.staff_id
+INNER JOIN patient ON patient.patient_id = appointments.patient_id
+WHERE patient.patient_name = 'Jane Smith';
+
+# 3. Select all distinct patients that received a Insulin
+SELECT DISTINCT patient_name from patient
+INNER JOIN treatments ON treatments.patient_id = patient.patient_id
+INNER JOIN prescriptions ON prescriptions.prescription_id = treatments.prescription_id
+WHERE prescriptions.prescription_name = 'Insulin';
+
+# 4. Select all patients that currently have a total bill count of over 500
+SELECT patient_name from patient
+INNER JOIN bills ON bills.patient_id = patient.patient_id
+GROUP BY bills.patient_id
+HAVING sum(bills.total_amount) > 500;
+
+# 5. Select all treatments that are a tablet and are less than 10
+SELECT * FROM prescriptions
+WHERE type = 'Tablet' AND price < 10;
+
+# 6. Select all patients and staff that were scheduled for each appointment before December 1st 2025
+SELECT patient.patient_name, staff.name as staff_name, appointments.appointment_date FROM appointments
+INNER JOIN patient ON appointments.patient_id = patient.patient_id
+INNER JOIN staff ON appointments.staff_id = staff.staff_id
+WHERE appointment_date < '2025-12-01'
+ORDER BY appointments.appointment_date;
+
+# 7. Select all patients that were seen by a dermotologist
+SELECT DISTINCT patient_name FROM patient
+INNER JOIN appointments ON appointments.patient_id = patient.patient_id
+INNER JOIN staff ON staff.staff_id = appointments.staff_id
+INNER JOIN specialization ON specialization.specialization_id = staff.specialization_id
+WHERE specialization.specialization_name = 'Derm';

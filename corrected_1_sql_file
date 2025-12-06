@@ -64,6 +64,10 @@ CREATE TABLE appointments (
   FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+ALTER TABLE appointments
+ADD status ENUM('scheduled', 'confirmed', 'completed', 'cancelled', 'rescheduled')
+    NOT NULL DEFAULT 'scheduled';
+
 CREATE TABLE bills (
   bill_id			INT PRIMARY KEY,
   prescription_id 	INT NOT NULL, 
@@ -79,7 +83,6 @@ CREATE TABLE schedules (
     staff_id		INT,                      
     appointment_id 	INT,                
     date_scheduled 	DATETIME NOT NULL,
-    status VARCHAR(50) NOT NULL DEFAULT 'pending',
     PRIMARY KEY (staff_id, appointment_id),
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -174,35 +177,32 @@ INSERT INTO treatments (treatment_id, prescription_id, staff_id, patient_id, dat
 (19, 310, 110, 210, '2025-12-02 11:00:00');
 
 -- 7) appointments (25 rows)
-INSERT INTO appointments (appointment_id, patient_id, staff_id, appointment_date) VALUES
--- appointments happened (30 minutes before receiving each treatment)
-(0, 201, 101, '2025-11-20 08:00:00'), 
-(1, 202, 101, '2025-11-20 08:30:00'),
-(2, 203, 103, '2025-11-20 09:00:00'), 
-(3, 204, 104, '2025-11-20 09:30:00'), 
-(4, 205, 105, '2025-11-20 10:00:00'),
-(5, 205, 106, '2025-11-20 10:30:00'), 
-(6, 201, 107, '2025-11-20 12:00:00'),
-(7, 208, 108, '2025-11-20 12:30:00'), 
-(8, 209, 109, '2025-11-20 13:00:00'), 
-(9, 202, 110, '2025-11-20 13:30:00'), 
-(10, 202, 101, '2025-11-21 08:00:00'), 
-(11, 202, 101, '2025-11-22 08:00:00'), 
-(12, 201, 101, '2025-11-25 08:00:00'), 
-(13, 203, 103, '2025-11-20 14:00:00'), 
-(14, 203, 103, '2025-11-30 09:00:00'), 
-(15, 204, 104, '2025-12-01 10:00:00'), 
-(16, 210, 107, '2025-12-02 08:30:00'), 
-(17, 208, 108, '2025-12-02 09:00:00'), 
-(18, 209, 109, '2025-12-02 10:00:00'), 
-(19, 210, 110, '2025-12-02 10:30:00'), 
--- appointments not happened yet
-(20, 201, 101, '2025-12-12 08:30:00'),
-(21, 202, 102, '2025-12-12 09:00:00'),
-(22, 205, 105, '2025-12-13 09:30:00'),
-(23, 210, 110, '2025-12-14 10:30:00'),
-(24, 208, 108, '2025-12-16 13:30:00');
-
+INSERT INTO appointments (appointment_id, patient_id, staff_id, appointment_date, status) VALUES
+(0, 201, 101, '2025-11-20 08:00:00', 'completed'),
+(1, 202, 101, '2025-11-20 08:30:00', 'completed'),
+(2, 203, 103, '2025-11-20 09:00:00', 'completed'),
+(3, 204, 104, '2025-11-20 09:30:00', 'completed'),
+(4, 205, 105, '2025-11-20 10:00:00', 'completed'),
+(5, 205, 106, '2025-11-20 10:30:00', 'completed'),
+(6, 201, 107, '2025-11-20 12:00:00', 'completed'),
+(7, 208, 108, '2025-11-20 12:30:00', 'completed'),
+(8, 209, 109, '2025-11-20 13:00:00', 'completed'),
+(9, 202, 110, '2025-11-20 13:30:00', 'completed'),
+(10, 202, 101, '2025-11-21 08:00:00', 'completed'),
+(11, 202, 101, '2025-11-22 08:00:00', 'cancelled'),
+(12, 201, 101, '2025-11-25 08:00:00', 'completed'),
+(13, 203, 103, '2025-11-20 14:00:00', 'cancelled'),
+(14, 203, 103, '2025-11-30 09:00:00', 'completed'),
+(15, 204, 104, '2025-12-01 10:00:00', 'completed'),
+(16, 210, 107, '2025-12-02 08:30:00', 'completed'),
+(17, 208, 108, '2025-12-02 09:00:00', 'cancelled'),
+(18, 209, 109, '2025-12-02 10:00:00', 'completed'),
+(19, 210, 110, '2025-12-02 10:30:00', 'rescheduled'),
+(20, 201, 101, '2025-12-12 08:30:00', 'cancelled'),
+(21, 202, 102, '2025-12-12 09:00:00', 'scheduled'),
+(22, 205, 105, '2025-12-13 09:30:00', 'confirmed'),
+(23, 210, 110, '2025-12-14 10:30:00', 'scheduled'),
+(24, 208, 108, '2025-12-16 13:30:00', 'scheduled');
 
 -- 8) bills (20 rows)
 INSERT INTO bills (bill_id, prescription_id, patient_id) VALUES
@@ -229,33 +229,32 @@ INSERT INTO bills (bill_id, prescription_id, patient_id) VALUES
 
 
 -- 9) schedules (25 rows)
-INSERT INTO schedules (staff_id, appointment_id, date_scheduled, status) VALUES
--- schedules happened (5-7 days before each appointments)
-(105, 0,  '2025-11-15 08:00:00', "completed"),
-(105, 1,  '2025-11-13 09:30:00', "completed"),
-(105, 2,  '2025-11-14 09:00:00', "completed"),
-(105, 3,  '2025-11-15 09:00:00', "completed"),
-(105, 4,  '2025-11-13 10:00:00', "completed"),
-(106, 5,  '2025-11-13 11:30:00', "completed"),
-(106, 6,  '2025-11-13 12:00:00', "completed"),
-(106, 7,  '2025-11-13 12:30:00', "completed"),
-(106, 8,  '2025-11-13 13:00:00', "completed"),
-(106, 9,  '2025-11-13 13:30:00', "completed"),
-(106, 10, '2025-11-14 08:00:00', "completed"),
-(106, 11, '2025-11-15 08:00:00', "cancelled"),
-(106, 12, '2025-11-18 08:00:00', "completed"),
-(106, 13, '2025-11-13 14:00:00', "cancelled"),
-(106, 14, '2025-11-23 09:00:00', "completed"),
-(106, 15, '2025-11-23 10:00:00', "completed"),
-(105, 16, '2025-11-24 08:30:00', "completed"),
-(105, 17, '2025-11-26 09:00:00', "cancelled"),
-(105, 18, '2025-11-25 13:00:00', "completed"),
-(105, 19, '2025-11-25 12:30:00', "rescheduled"),
-(105, 20, '2025-12-05 16:30:00', "cancelled"),
-(105, 21, '2025-12-05 09:00:00', "scheduled"),
-(105, 22, '2025-12-07 17:30:00', "confirmed"),
-(105, 23, '2025-12-09 15:30:00', "scheduled"),
-(105, 24, '2025-12-09 13:30:00', "scheduled");
+INSERT INTO schedules (staff_id, appointment_id, date_scheduled) VALUES
+(105, 0,  '2025-11-15 08:00:00'),
+(105, 1,  '2025-11-13 09:30:00'),
+(105, 2,  '2025-11-14 09:00:00'),
+(105, 3,  '2025-11-15 09:00:00'),
+(105, 4,  '2025-11-13 10:00:00'),
+(106, 5,  '2025-11-13 11:30:00'),
+(106, 6,  '2025-11-13 12:00:00'),
+(106, 7,  '2025-11-13 12:30:00'),
+(106, 8,  '2025-11-13 13:00:00'),
+(106, 9,  '2025-11-13 13:30:00'),
+(106, 10, '2025-11-14 08:00:00'),
+(106, 11, '2025-11-15 08:00:00'),
+(106, 12, '2025-11-18 08:00:00'),
+(106, 13, '2025-11-13 14:00:00'),
+(106, 14, '2025-11-23 09:00:00'),
+(106, 15, '2025-11-23 10:00:00'),
+(105, 16, '2025-11-24 08:30:00'),
+(105, 17, '2025-11-26 09:00:00'),
+(105, 18, '2025-11-25 13:00:00'),
+(105, 19, '2025-11-25 12:30:00'),
+(105, 20, '2025-12-05 16:30:00'),
+(105, 21, '2025-12-05 09:00:00'),
+(105, 22, '2025-12-07 17:30:00'),
+(105, 23, '2025-12-09 15:30:00'),
+(105, 24, '2025-12-09 13:30:00');
 
 SELECT COUNT(*) AS total_patients
 FROM patient;
@@ -396,3 +395,5 @@ WHERE t.prescription_id IN (
     FROM prescriptions
     WHERE type = 'Tablet'
 );
+
+

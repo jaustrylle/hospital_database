@@ -60,13 +60,11 @@ CREATE TABLE appointments (
   patient_id        INT NOT NULL,
   staff_id          INT NOT NULL,
   appointment_date  DATETIME NOT NULL,
+  status ENUM('scheduled', 'confirmed', 'completed', 'cancelled', 'rescheduled')
+    NOT NULL DEFAULT 'scheduled',
   FOREIGN KEY (patient_id) REFERENCES patient(patient_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
-ALTER TABLE appointments
-ADD status ENUM('scheduled', 'confirmed', 'completed', 'cancelled', 'rescheduled')
-    NOT NULL DEFAULT 'scheduled';
 
 CREATE TABLE bills (
   bill_id			INT PRIMARY KEY,

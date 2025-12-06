@@ -79,6 +79,7 @@ CREATE TABLE schedules (
     staff_id		INT,                      
     appointment_id 	INT,                
     date_scheduled 	DATETIME NOT NULL,
+	status			VARCHAR NOT NULL,
     PRIMARY KEY (staff_id, appointment_id),
     FOREIGN KEY (staff_id) REFERENCES staff(staff_id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id) ON DELETE CASCADE ON UPDATE CASCADE

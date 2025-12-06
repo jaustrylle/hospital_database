@@ -159,7 +159,7 @@ INSERT INTO treatments (treatment_id, prescription_id, staff_id, patient_id, dat
 (4, 305, 105, 205, '2025-11-20 10:30:00'),
 (5, 306, 106, 205, '2025-11-20 11:00:00'),
 (6, 307, 107, 201, '2025-11-20 12:30:00'),
-(7, 308, 108, 208, '2025-11-20 13:00:00'),
+(7, 308, 108, 202, '2025-11-20 13:00:00'),
 (8, 309, 109, 209, '2025-11-20 13:30:00'),
 (9, 310, 110, 202, '2025-11-20 14:00:00'),
 (10, 304, 101, 202, '2025-11-21 08:30:00'),
@@ -169,7 +169,7 @@ INSERT INTO treatments (treatment_id, prescription_id, staff_id, patient_id, dat
 (14, 303, 103, 203, '2025-11-30 09:30:00'),
 (15, 306, 104, 204, '2025-12-01 10:30:00'),
 (16, 307, 107, 210, '2025-12-02 09:00:00'),
-(17, 308, 108, 208, '2025-12-02 09:30:00'),
+(17, 308, 108, 203, '2025-12-02 09:30:00'),
 (18, 309, 109, 209, '2025-12-02 10:30:00'),
 (19, 310, 110, 210, '2025-12-02 11:00:00');
 
@@ -216,7 +216,7 @@ INSERT INTO bills (bill_id, prescription_id, patient_id) VALUES
 (508, 308, 208),
 (509, 309, 209),
 (510, 310, 202),
-(511, 304, 202),
+(511, 306, 202),
 (512, 302, 202),
 (513, 301, 201),
 (514, 305, 203),
@@ -257,11 +257,9 @@ INSERT INTO schedules (staff_id, appointment_id, date_scheduled, status) VALUES
 (105, 23, '2025-12-09 15:30:00', "scheduled"),
 (105, 24, '2025-12-09 13:30:00', "scheduled");
 
---1--
 SELECT COUNT(*) AS total_patients
 FROM patient;
 
---2--
 SELECT
     specialization_id,
     COUNT(staff_id) AS number_of_doctors
@@ -272,10 +270,8 @@ GROUP BY
 ORDER BY
     number_of_doctors DESC;
 
---3--
 SELECT name FROM staff WHERE specialization_id = 'CARD';
 
---4--
 SELECT
     p.patient_name,
     p.patient_id,
@@ -285,61 +281,51 @@ FROM
 INNER JOIN
     bills pr ON p.patient_id = pr.patient_id
 WHERE
-    LOWER(pr.prescription_id) = 304;
+    LOWER(pr.prescription_id) = 301;
 
---5--
 SELECT patient_name FROM patient WHERE patient_id NOT IN (SELECT patient_id FROM appointments WHERE appointment_date > CURRENT_DATE);
 
---6--
 SELECT D.name AS DoctorName, COUNT(DISTINCT A.patient_id) AS NumberOfPatients
 FROM staff D
 LEFT JOIN appointments A ON D.staff_id = A.staff_id
 GROUP BY D.name;
 
---7--
 SELECT treatment_id, COUNT(*) AS treatment_count FROM treatments GROUP BY treatment_id ORDER BY treatment_count DESC;
 
 #Peyton Bubert
-# 8. Select all patients that are female and weight is higher than 125
+# 1. Select all patients that are female and weight is higher than 125
 SELECT * FROM patient WHERE gender = 'F' AND weight > 60;
 
-# 9. Select all distinct staff that have had an appointment with Jane Smith
+# 2. Select all distinct staff that have had an appointment with Jane Smith
 SELECT DISTINCT name from staff
 INNER JOIN appointments ON appointments.staff_id = staff.staff_id
 INNER JOIN patient ON patient.patient_id = appointments.patient_id
 WHERE patient.patient_name = 'Jane Smith';
 
-# 10. Select all distinct patients that received a Insulin
+# 3. Select all distinct patients that received a Insulin
 SELECT DISTINCT patient_name from patient
 INNER JOIN treatments ON treatments.patient_id = patient.patient_id
 INNER JOIN prescriptions ON prescriptions.prescription_id = treatments.prescription_id
 WHERE prescriptions.prescription_name = 'Insulin';
 
-# 11. Select all patients that currently have a total bill count of over 500
-SELECT patient_name from patient
-INNER JOIN bills ON bills.patient_id = patient.patient_id
-GROUP BY bills.patient_id
-HAVING sum(bills.total_amount) > 500;
-
-# 12. Select all treatments that are a tablet and are less than 10
+# 5. Select all treatments that are a tablet and are less than 10
 SELECT * FROM prescriptions
 WHERE type = 'Tablet' AND price < 10;
 
-# 13. Select all patients and staff that were scheduled for each appointment before December 1st 2025
+# 6. Select all patients and staff that were scheduled for each appointment before December 1st 2025
 SELECT patient.patient_name, staff.name as staff_name, appointments.appointment_date FROM appointments
 INNER JOIN patient ON appointments.patient_id = patient.patient_id
 INNER JOIN staff ON appointments.staff_id = staff.staff_id
 WHERE appointment_date < '2025-12-01'
 ORDER BY appointments.appointment_date;
 
-# 14. Select all patients that were seen by a dermotologist
+# 7. Select all patients that were seen by a dermotologist
 SELECT DISTINCT patient_name FROM patient
 INNER JOIN appointments ON appointments.patient_id = patient.patient_id
 INNER JOIN staff ON staff.staff_id = appointments.staff_id
 INNER JOIN specialization ON specialization.specialization_id = staff.specialization_id
 WHERE specialization.specialization_name = 'Derm';
 
---15--
 SELECT 
     p.patient_id,
     p.patient_name,
@@ -350,14 +336,12 @@ INNER JOIN bills b
 GROUP BY p.patient_id, p.patient_name
 ORDER BY total_billed DESC;
 
---16--
 SELECT 
     gender,
     AVG(age) AS average_age
 FROM patient
 GROUP BY gender;
 
---17--
 SELECT 
     s.staff_id,
     s.name,
@@ -371,21 +355,19 @@ INNER JOIN occupation o
     ON s.occupation_id = o.occupation_id
 ORDER BY s.staff_id;
 
---18--
 SELECT 
     pr.prescription_id,
     pr.prescription_name,
     pr.type,
     pr.price
 FROM prescriptions pr
-WHERE pr.prescription_id NOT IN (
+WHERE pr.prescription_id IN (
         SELECT DISTINCT prescription_id FROM treatments
     )
   AND pr.prescription_id NOT IN (
         SELECT DISTINCT prescription_id FROM bills
     );
 
---19--
 SELECT 
     p.patient_id,
     p.patient_name
@@ -399,10 +381,18 @@ WHERE p.patient_id IN (
         FROM treatments
     );
 
---20--
 SELECT 
     DATE(appointment_date) AS appointment_day,
     COUNT(*) AS number_of_appointments
 FROM appointments
 GROUP BY DATE(appointment_date)
 ORDER BY appointment_day;
+
+-- newly added-
+SELECT DISTINCT t.patient_id
+FROM treatments t
+WHERE t.prescription_id IN (
+    SELECT prescription_id
+    FROM prescriptions
+    WHERE type = 'Tablet'
+);
